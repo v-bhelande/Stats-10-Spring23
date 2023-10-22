@@ -1,0 +1,150 @@
+---
+title: "stat10_assignment4_p1"
+output: html_document
+date: "2023-06-01"
+---
+
+Name: Vedang Bhelande
+UID: 905336978
+
+================== PART 1 ==================
+
+Exercise 1
+
+a) Place the flags 1 standard deviation on either side of the mean. What is the area between these two values? What does the empirical rule say this area is?
+
+The area between these two values is 0.6827. The empirical rule states that this area is 0.68.
+
+b) Repeat for 2 and 3 standard deviations on either side of the mean. Again, compare the empirical rule with the area given in the applet.
+
+The area between negative two standard deviations and positive two standard deviations is 0.9545. The empirical rule states that this area is 0.95. The area between negative three standard deviations and positive three standard deviations is 0.9973. The empirical rule states that this area is 0.997.
+
+c) Using the applet, how many standard deviations above and below the mean do the quartiles of any normal distribution lie? Use the closest available values (the applet can't hit every value exactly).
+
+The lower quartile (Q1) lies around 0.671 standard deviations below the mean while the upper quartile (Q3) lies around 0.671 standard deviations above the mean. The second quartile/median (Q2) coincides with mean since this is a normal distribution.
+
+=============================
+
+Exercise 2
+
+a) What proportion of males are less than 65 inches tall? In other words, what is P(X < 65)?
+
+```{r}
+pnorm(65, mean = 69, sd = 2.8)
+```
+
+7.66% of males are less than 65 inches tall.
+
+b) What proportion of males are more than 75 inches tall? In other words, what is P(X > 75)?
+
+```{r}
+pnorm(75, mean = 69, sd = 2.8, lower.tail = FALSE)
+```
+
+1.61% of males are more than 75 inches tall.
+
+c) What proportion of males are between 66 and 72 inches tall? In other words, what is P(66 <
+X < 72)?
+
+```{r}
+pnorm(72, mean = 69, sd = 2.8) - pnorm(66, mean = 69, sd = 2.8)
+```
+
+71.60% of males are between 66 and 72 inches tall.
+
+=============================
+
+Exercise 3
+
+a) How tall must a male be in order to be among the shortest 0.5% of males?
+
+```{r}
+qnorm(0.005, mean = 69, sd = 2.8)
+```
+
+To be among the shortest 0.5% of males, a male must be 61.79 inches or shorter.
+
+b) How tall must a male be in order to be among the tallest 0.25% of males?
+
+```{r}
+qnorm(0.0025, mean = 69, sd = 2.8, lower.tail = FALSE)
+```
+
+To be among the tallest 0.25% of males, a male must be 76.86 inches or taller.
+
+=============================
+
+Exercise 4
+
+a) Run the entire chunk of code in the lab 4 section 3 to run a “for loop” that creates a vector of sample proportions. Using the results, create a relative frequency histogram of the sampling distribution of sample proportions.
+
+```{r}
+pawnee = read.csv("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 4/pawnee.csv")
+
+# We first create objects for common quantities we will use for this exercise.
+n <- 30 # The sample size
+N <- 541 # The population size
+M <- 1000 # Number of samples/repetitions
+
+# Create vectors to store the simulated proportions from each repetition. 
+phats <- numeric(M) # for sample proportions
+
+# Set the seed for reproduceability
+set.seed(123)
+# Always set the seed OUTSIDE the for loop.
+
+# Now we start the loop. Let i cycle over the numbers 1 to 1000 (i.e., iterate 1000 times).
+for(i in seq_len(M)){
+# The i-th iteration of the for loop represents a single repetition.
+# Take a simple random sample of size n from the population of size N. 
+index <- sample(N, size = n)
+# Save the random sample in the sample_i vector.
+sample_i <- pawnee[index, ]
+# Compute the proportion of the i-th sample of households with a new health issue.
+phats[i] <- mean(sample_i$New_hlth_issue == "Y")
+}
+
+hist(phats, prob = T)
+```
+
+Superimpose a normal curve to your histogram with following instructions:
+
+• If you use the hist() function from base R, add the argument: prob = TRUE, then run the command: curve(dnorm(x, mean(phats), sd(phats)), add = TRUE).
+
+```{r}
+hist(phats, prob = TRUE)
+curve(dnorm(x, mean(phats), sd(phats)), add = TRUE)
+```
+
+b) What is the mean and standard deviation of the simulated sample proportions?
+
+```{r}
+mean(phats)
+sd(phats)
+```
+
+The mean of the simulated sample proportions is 0.293.
+The standard deviation of the simulated sample proportions is 0.0795.
+
+c) Do you think the simulated distribution of sample proportions is approximately normal? Explain why or why not.
+
+```{r}
+# Check CLT conditions where np > 10 and n(1-p) > 10
+# n*(1-p)
+# n*p
+```
+
+Since np < 10, there is reason to doubt this normal approximation does a perfect job of approximating the distribution of sample proportions as it violates the Central Limit Theorem conditions. 
+
+d) Using the theory-based method (i.e., normal approximation by invoking the Central Limit Theorem), what would you predict the mean and standard deviation of the sampling distribution of sample proportions to be? How close are these predictions to your answers from Part b?
+
+```{r}
+# p
+# se_phat = sqrt(p*(1-p)/n)
+# se_phat
+
+# p-mean(phats)
+# se_phat-sd(phats)
+```
+
+Using normal approximation by invoking the Central Limit Theorem, the mean is 0.292 and the standard deviation is 0.083. The mean differs by -0.0007 from our answer in part b and the standard deviation differs by 0.0035 from our answer in part b.

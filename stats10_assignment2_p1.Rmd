@@ -1,0 +1,353 @@
+---
+title: "stats10_assignment2_p1"
+output: html_document
+date: "2023-04-25"
+---
+
+Name: Vedang Bhelande
+
+================== PART 1 ==================
+
+Exercise 1
+
+a) Download the data from the course site and read it into R. When you read in the data, name your object “flint”.
+
+```{r}
+flint = read.csv("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 2/flint.csv")
+```
+
+b) The EPA states a water source is especially dangerous if the lead level is 15 PPB or greater. What proportion of the locations tested were found to have dangerous lead levels?
+
+```{r}
+# Read in column containing lead levels
+leadLevels = flint$Pb
+
+# Print statement to check we are reading in Pb levels
+# print(leadLevels)
+
+# Proportion of locations where lead levels were 15 PPB or greater
+dangSources = mean(leadLevels >= 15)
+print(dangSources)
+```
+
+c) Report the mean copper level for only test sites in the North region.
+
+```{r}
+# Read in column containing copper levels
+copperLevels = flint$Cu
+
+# Read in column containing region
+region = flint$Region
+
+# Subset copper levels based on region
+meanCuNorth = mean(copperLevels[region == "North"])
+paste("Mean copper level for only test sites in the North region was", meanCuNorth, "PPB.")
+```
+
+d) Report the mean copper level for only test sites with dangerous lead levels (at least 15 PPB).
+
+```{r}
+# Subset copper levels based on lead levels
+meanCu_dangPb = mean(copperLevels[leadLevels >= 15])
+paste("Mean copper level for only test sites with dangerous lead levels (at least 15 PPB) was", meanCu_dangPb, "PPB.")
+```
+
+e) Report the mean lead and copper levels.
+
+```{r}
+meanPbLevel = mean(leadLevels)
+paste("Mean lead level is", meanPbLevel, "PPB.")
+
+meanCuLevel = mean(copperLevels)
+paste("Mean copper level is", meanCuLevel, "PPB.")
+```
+
+f) Create a box plot with a good title for the lead levels.
+
+```{r}
+# install.packages("mosaic")
+library(mosaic)
+
+# safePbLevel = (leadLevels < 15)
+# dangPbLevel = (leadLevels >= 15)
+
+# Create box plot woth nice title
+boxplot(leadLevels, main = "Lead Levels in Flint (PPB)")
+
+```
+
+g) Based on what you see in part (f), does the mean seem to be a good measure of center for the data? Report a more useful statistic for this data.
+
+```{r}
+# View 5 number summary
+summary(leadLevels)
+
+mean(leadLevels == 0)
+median(leadLevels)
+```
+
+The mean is not a good measure of center since the box plot indicates a positively skewed distribution and there are a large number of outliers. In this case, the median is a more useful statistic and has a value 0.
+
+=============================
+
+Exercise 2
+
+a) Construct a scatterplot of Life against Income. Note: Income should be on the horizontal axis. How does income appear to affect life expectancy?
+
+```{r}
+# Read in data
+life<-read.table("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 2/countries_life.txt", header = TRUE)
+
+lifeExpectancy = life$Life
+income = life$Income
+
+plot(income, lifeExpectancy, xlab = "Income ($)", ylab = "Life Expectancy (Years)", main = "Life Expectancy v/s Income", col = "red")
+```
+
+Higher income seems to be associated with higher life expectancy. After a while, ...
+
+b) Construct the boxplot and histogram of Income. Are there any outliers?
+
+```{r}
+#Boxplot of Income
+boxplot(income)
+```
+
+```{r}
+# Histogram of Income
+hist(income)
+```
+
+From the boxplot, anything after \$2500 seems to be an outlier. From histogram, anything after \$1000 seems to be an outlier.
+
+c) Split the data set into two parts: One for which the Income is strictly below \$1000, and one for which the Income is at least \$1000. Come up with your own names for these two objects.
+
+```{r}
+# Income strictly below $1000
+incomeBelow1k = income[income < 1000]
+lifeBelow1k = lifeExpectancy[income < 1000]
+# print(incomeBelow1k)
+
+# Income is at least $1000
+incomeAbove1k = income[income >= 1000]
+lifeAbove1k = lifeExpectancy[income >= 1000]
+# print(incomeAbove1k)
+```
+
+d) Use the data for which the Income is below $1000. Plot Life against Income and compute the correlation coefficient. Hint: use the function cor().
+
+```{r}
+plot(incomeBelow1k, lifeBelow1k, xlab = "Income ($)", ylab = "Life Expectancy (Years)", main = "Life Expectancy v/s Income", col = "red")
+```
+
+=============================
+
+Exercise 3
+
+a) Compute the summary statistics for lead and zinc using the summary() function.
+
+```{r}
+# Read in data
+maas<-read.table("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 2/soil.txt", header = TRUE)
+
+# Lead summary
+leadConc = maas$lead
+print("Summary statistics for lead is as follows:")
+summary(leadConc)
+
+# Zinc Summary
+zincConc = maas$zinc
+print("Summary statistics for zinc is as follows:")
+summary(zincConc)
+```
+
+Plot two histograms: one of lead and one of log(lead).
+
+```{r}
+# Histogram of lead
+hist(leadConc)
+```
+
+```{r}
+# Histogram of log(lead)
+logPb = log(leadConc)
+hist(logPb)
+```
+
+c) Plot log(lead) against log(zinc). What do you observe?
+
+```{r}
+# log(zinc) Conversion
+logZn = log(zincConc)
+
+# Scatterplot of log(lead) against log(zinc)
+plot(logZn, logPb, xlab = "log(zinc)", ylab = "log(lead)", main = "log(lead) v/s log(zinc)")
+```
+
+d) The level of risk for surface soil based on lead concentration in ppm is given on the table below:
+
+Mean concentration (ppm)        Level of risk
+Below 150                       Lead-free
+Between 150-400                 Lead-safe
+Above 400                       Significant environmental lead hazard
+
+Use techniques similar to last lab to give different colors and sizes to the lead concentration at these 155 locations. You do not need to use the maps package create a map of the area. Just plot the points without a map.
+
+```{r}
+# Make cuts
+PbCuts = cut(leadConc, c(0, 150, 400, 700))
+
+# PbFree = leadConc[leadConc < 150]
+# PbSafe = leadConc[leadConc >= 150 & leadConc < 400]
+# print(PbSafe)
+# PbDang = leadConc[leadConc >= 400]
+
+# Assign colors
+myColors = c("red", "orange", "green")
+PbColors = myColors[as.numeric(PbCuts)]
+
+# Assign sizes
+mySizes = c(1, 4, 9)
+
+# Plot
+plot(x = maas$x, y = maas$y, xlab = " x Coordinate", ylab = "y Coordinate", main = " Lead Levels at Different Coordinates", col = PbColors, pch = 19, cex = leadConc/mean(leadConc))
+```
+
+=============================
+
+Exercise 4
+
+a) Plot the data point locations. Use good formatting for the axes and title. Then add the outline of LA County by typing:
+
+```{r}
+# Install maps package
+# install.packages("maps")
+library(maps)
+
+# Read in data
+LA<-read.table("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 2/la_data.txt", header = TRUE)
+
+# Plot data locations
+lat = LA$Latitude
+long = LA$Longitude
+plot(long, lat, xlim = c(-119, -118), ylim = c(33.5, 34.5))
+
+# Adding outline
+map("county", "california", add = TRUE)
+```
+
+b) Do you see any relationship between income and school performance? Hint: Plot the variable Schools against the variable Income and describe what you see. Ignore the data points on the plot for which Schools = 0. Use what you learned about subsetting with logical statements to first create the objects you need for the scatter plot. Then, create the scatter plot.
+
+```{r}
+# Remove values where Schools = 0
+LAnon0 = LA[LA$Schools != 0, ]
+
+plot(LAnon0$Income, LAnon0$Schools)
+```
+
+We see a positive relation ship between income and schools until around $100,000. After that the relationship vanishes and we see outliers which indicates income stops mattering after that point.
+
+=============================
+
+Exercise 5
+
+```{r}
+# Read in data
+customer_data<-read.csv("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 2/customer_data.csv", header = TRUE)
+```
+
+a) Are there any missing values in the dataset? If so, how many are there and which variables have missing values?
+
+```{r}
+# Remove missing values
+na.omit(customer_data)
+```
+
+```{r}
+# Count number of missing values
+paste("The total number of missing values is", sum(is.na(customer_data)))
+
+# Tell which categories have missing values
+paste("The number of missing values in customer ID is", sum(is.na(customer_data$cust_id)))
+paste("The number of missing values in age is", sum(is.na(customer_data$age)))
+paste("The number of missing values in gender is", sum(is.na(customer_data$gender)))
+paste("The number of missing values in income is", sum(is.na(customer_data$income)))
+paste("The number of missing values in education is", sum(is.na(customer_data$education)))
+paste("The number of missing values in marital status is", sum(is.na(customer_data$marital_status)))
+paste("The number of missing values in purchase amount is", sum(is.na(customer_data$purchase_amt)))
+```
+
+b) What is the data type of each variable? Are there any variables that should be converted to a different data type?
+
+```{r}
+# Head shows data type of each variable
+head(customer_data)
+```
+
+Customer ID is character.
+Age is integer.
+Gender is character.
+Income is integer.
+Education is character.
+Marital Status is character.
+Purchase Amount is integer.
+
+```{r}
+# Factor gender to convert characters into items with unique integer representations
+factor(customer_data$gender)
+
+# Factor marital status
+factor(customer_data$marital_status)
+```
+
+We can encode the categorical variables of gender and marital status numerically for easier data analysis in the future.
+
+c) Do any numerical variables have outliers or extreme values? If so, how would you handle them? Provide your analysis in R for identifying outliers (e.g., visualization, numerical summary statistics). This is an open-ended question, so please feel free to use any appropriate methods to identify and deal with any outliers or extreme values in the dataset.
+
+The approach used here is to make boxplots and check the 5 number summary for each numeric variable and check for any outliers.
+
+```{r}
+# Age Boxplot
+boxplot(customer_data$age)
+```
+```{r}
+# Age 5 number summary
+summary(customer_data$age)
+max_age = 56.75 + 1.5*(56.75-32.00)
+min_age = 32.00 - 1.5*(56.75-32.00)
+paste("Maximum age that is not an outlier <=", max_age)
+paste("Minimum age that is not an outlier >=", min_age)
+```
+
+From the boxplot and 5 number summary, we see no age values that can be an outlier.
+
+```{r}
+# Purchase Amount Boxplot
+boxplot(customer_data$purchase_amt)
+```
+```{r}
+# Purchase Amount 5 Number Summary
+summary(customer_data$purchase_amt)
+max_purchase = 466.0 + 1.5*(466.0-211.0)
+min_purchase = 211.0 - 1.5*(466.0-211.0)
+paste("Maximum purchase amount that is not an outlier <=", max_purchase)
+paste("Minimum purchase amount that is not an outlier >=", min_purchase)
+```
+
+From the boxplot and 5 number summary, we see no purchase amount values that can be an outlier.
+
+```{r}
+# Income Boxplot
+boxplot(customer_data$income)
+```
+
+```{r}
+# Purchase Amount 5 Number Summary
+summary(customer_data$income)
+max_inc = 150030 + 1.5*(150030-55320)
+min_inc = 55320 - 1.5*(150030-55320)
+paste("Maximum income that is not an outlier <=", max_inc)
+paste("Minimum income that is not an outlier >=", min_inc)
+```
+
+From the boxplot and 5 number summary, we see no income values that can be an outlier.

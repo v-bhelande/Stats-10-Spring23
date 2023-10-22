@@ -1,0 +1,277 @@
+---
+title: "stats10_assignment5_p1"
+output: html_document
+date: "2023-06-14"
+---
+
+Name: Vedang Bhelande
+UID: 905336978
+
+================== PART 1 ==================
+
+Exercise 1
+
+```{r}
+# Read in data
+pawnee<-read.csv("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 5/pawnee.csv", header = TRUE)
+```
+
+a. Use the head() function to print out the first few rows of this data. Then, use the dim() function to print out the number of rows and columns of this data frame.
+
+```{r}
+head(pawnee)
+```
+```{r}
+dim(pawnee)
+```
+
+b. Set the seed to 1337 and take a simple random sample of size 30 from the entire pawnee data frame. Save the random sample as a separate R object, and print the first few lines to make sure you saved it correctly.
+
+```{r}
+set.seed(1337)
+random_indices = sample(541, size = 30, replace = FALSE)
+random_indices
+```
+
+```{r}
+random_sample = pawnee[random_indices,]
+head(random_sample)
+```
+
+c. Report the mean arsenic level from the sample you took in b. Also report the proportion of households experiencing a major health issue from your sample.
+
+```{r}
+mean(random_sample$Arsenic)
+
+phat = mean(random_sample$New_hlth_issue == "Y")
+phat
+```
+
+The mean arsenic level from the sample is 0.85ppm.
+The proportion of households experiencing a major health issue is 0.2.
+
+d. What symbol from lecture would we use for the mean arsenic level in the sample? What symbol would we use for the proportion of health issues in the sample?
+
+We would use $\bar{x}$ or x-bar to calculate the mean arsenic level in the sample.
+We would use $\hat{p}$ or p-hat to calculate the proportion of health issues in the sample.
+
+e. Now, let’s generate confidence intervals for our sample proportion using the sample results. Produce 90%, 95%, and 99% confidence intervals for the true population proportion. Consult your lecture materials if you are unsure how to do this. You can use R and/or a calculator for this question, but please include code or calculations to show your work.
+
+```{r}
+se_phat = sqrt(phat*(1-phat)/30)
+se_phat
+```
+
+```{r}
+# For 90% confidence interval, we use 0.95
+z_90 = qnorm(0.95)
+z_90
+```
+
+```{r}
+phat + c(-1,1)*z_90*se_phat
+```
+
+The 90% confidence interval is (0.079, 0.320).
+
+```{r}
+# For 95% confidence interval, we use 0.975
+z_95 = qnorm(0.975)
+z_95
+```
+
+```{r}
+phat + c(-1,1)*z_95*se_phat
+```
+
+The 95% confidence interval is (0.057, 0.343).
+
+```{r}
+# For 99% confidence interval, we use 0.995
+z_99 = qnorm(0.995)
+z_99
+```
+
+```{r}
+phat + c(-1,1)*z_99*se_phat
+```
+
+The 99% confidence interval is (0.012, 0.388).
+
+f. What would be the bounds of a 100% confidence interval for the population proportion?
+
+$(0, 1)$ would be a 100% confidence interval for the population proportion.
+
+g. Report the proportion of all households which experienced a new major health issue.
+
+```{r}
+mean(pawnee$New_hlth_issue == "Y")
+```
+
+The proportion of all households which experienced a new major health issue is 0.292.
+
+h. Create a plot that visualizes the distribution of arsenic levels for the houses in Pawnee. Hint: we can consider the arsenic levels continuous data.
+
+```{r}
+hist(pawnee$Arsenic)
+```
+
+=============================
+
+Exercise 2
+
+```{r}
+# Read in data
+flint<-read.table("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 5/flint.csv", header = TRUE)
+```
+
+a) We will conduct a hypothesis test for this research question. What are the null and alternative hypotheses? Is this a one-sided or a two-sided test?
+
+$$H_0: p_0 = 0.1, \quad H_a: p_0 > 0.1$$
+This is a one-sided test.
+
+b) Calculate the sample proportion and sample standard deviation of the sample proportion of dangerous lead levels.
+
+Here, we assume the entire dataframe is one random sample.
+
+```{r}
+phat = mean(flint$Pb >= 15)
+phat
+
+se_phat = sqrt(phat*(1-phat)/541)
+se_phat
+```
+
+The sample proportion of dangerous lead levels is 0.044.
+The sample standard deviation of dangerous lead levels is 0.0089.
+
+c) Now, calculate the SE of sample proportions, and the z-value for this test. Consult the above instructions and/or the lecture materials for guidance.
+
+```{r}
+se_phat = sqrt(0.1*(1-0.1)/541)
+se_phat
+
+z_stat = (phat-0.1)/se_phat
+z_stat
+```
+
+The SE of sample proportions is  0.013.
+The z-value for this test is -4.314.
+
+d) Using the z-statistic in (c), calculate the p-value associated with this test. You may use R’s pnorm() function or a normal table, but please show all work.
+
+```{r}
+1-pnorm(z_stat)
+```
+
+We're looking for the right side probability since our alternative hypothesis is a greater than one-sided test.
+
+e) Using a significance level of 0.05, do you reject the null hypothesis?
+
+Since our answer from part (d) is greater than the significance level (0.99 > 0.05), we fail to reject the null hypothesis.
+
+f) If greater than 10% of households in Flint contain dangerous lead levels, the EPA requires remediation action to be taken. Based on your results, what should you tell the EPA?
+
+Since we failed to reject the null hypothesis, we revoke the argument that greater than 10% of households in Flint contain dangerous lead level. Hence, we can tell the EPA that remediation action need not be taken.
+
+g) Another way to run this test is to use the prop.test() function using the mosaic package. You will need to know your sample size, and the number of “successes” in the sample. Use this function to conduct the same hypothesis test in (a)-(d) and obtain a p-value from the test. Using the same significance level of 0.05, do your results change? An example of the prop.test() function is shown in the two lines below:
+
+```{r}
+## We flipped 100 coins and 60 were heads. Is the long-run proportion of heads greater than 0.5?
+prop.test(x = 60, n = 100, p = 0.5, alt = "greater")
+```
+
+```{r}
+sum(flint$Pb >= 15)
+prop.test(24, 541, 0.1, alternative = "greater")
+
+```
+
+The p-value obtained from this test is rounded to 1 and doesn't significantly differ from the p-value previously calculated. Our results do not change as we still fail to reject the null hypothesis.
+
+=============================
+
+Exercise 3
+
+a) We will conduct a hypothesis test for this research question. What are the null and alternative hypotheses? Is this a one-sided or a two-sided test?
+
+Let $p_1$ be the proportion of the North region and $p_2$ be the proportion of the South region.
+
+$$H_0: p_1 = p_2 \iff H_a: p_1 - p_2 \neq 0$$
+This is a two-sided test.
+
+b) Using guidance from lecture, calculate every value you will need to produce a z-statistic for this test. Then, calculate the z-statistic. Please show all work.
+
+```{r}
+flint<-as.data.frame(flint)
+
+flint_north = flint[flint$Region == "North",]
+flint_south = flint[flint$Region == "South",]
+
+nrow(flint_north)
+nrow(flint_south)
+```
+
+```{r}
+flint_north<-as.data.frame(flint_north)
+flint_south<-as.data.frame(flint_south)
+
+p_1 = mean(flint_north$Pb >= 15)
+p_2 = mean(flint_south$Pb >= 15)
+
+p_1
+p_2
+```
+
+```{r}
+se_p1p2 = sqrt(phat*(1-phat)*((1/261)+(1/280)))
+se_p1p2
+```
+
+phat is the combined sample proportion that we calculated in exercise 2.
+$n_1$ = 261 and $n_2$ = 280 are the number of rows in the flint_north and flint_south dataframes respectively.
+
+```{r}
+z_stat_p1p2 = (p_1-p_2)/se_p1p2
+z_stat_p1p2
+```
+
+The z-statistic is 1.012.
+
+c) Using the z-statistic in (b), calculate the p-value associated with this test. You may use R’s pnorm() function or a normal table, but please show all work.
+
+```{r}
+2*(1-pnorm(abs(z_stat_p1p2)))
+```
+
+We multiplied by 2 since this is a 2-sided and we need the tails on left and right side of the distribution.
+
+The associated p-value is 0.312.
+
+d) Using a significance level of 0.05, do you reject the null hypothesis? Interpret this result in the context of our research question. Hint: is this a two-sided test?
+
+Since our answer from part (c) is greater than the significance level (0.312 > 0.05), we fail to reject the null hypothesis. This means we don't have enough evidence against to suggest that the proportion of dangerous lead levels in the North region and proportion of dangerous lead levels in the South region are significantly different.
+
+e) Another way to run this test is to use the prop.test() function. Use the function to conduct the same hypothesis test in and obtain a p-value from the test, again using a significance level of 0.05. Do your results change? A sample of the prop.test() function for two proportions is shown in the two lines below:
+
+```{r}
+## We flipped 100 pennies and 52 were heads. Then we flipped 80 dimes, and 47 were heads. Is ## the long-run proportion of heads different for pennies and dimes?
+prop.test(x = c(52, 47), n = c(100, 80), alt = "two.sided")
+```
+
+```{r}
+flint_north_final = flint[flint$Region == "North",]
+fint_south_final = flint[flint$Region == "South",]
+
+x_n = p_1*nrow(flint_north)
+x_s = p_2*nrow(flint_south)
+
+n_n = nrow(flint_north)
+n_s = nrow(flint_south)
+```
+
+```{r}
+prop.test(x = c(x_n, x_s), n = c(n_n, n_s), alt = "two.sided", correct = FALSE)
+```
+
+We obtained the same p-value = 0.312 as calculated in part (c). Our results do not change as we still fail to reject the null hypothesis.

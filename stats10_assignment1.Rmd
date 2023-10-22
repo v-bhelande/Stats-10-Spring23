@@ -1,0 +1,210 @@
+---
+title: "stats10_assignment1"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-04-11"
+---
+
+================== PART 1 ==================
+
+1) Vectors:
+
+a. Create a vector named heights that contains the heights, in inches, of yourself and two
+students near you. Print the contents of this vector.
+
+```{r}
+heights = c(71, 71, 69)
+print(heights)
+```
+
+b. Create a vector named names that contains the names of these people. Print the contents
+of this vector.
+
+```{r}
+names = c("Vedang", "Joseph", "Spencer")
+print(names)
+```
+
+c. Try typing cbind(heights, names). What did this command do? What class is this new
+object?
+Hint: Try the class() function.
+
+```{r}
+combined = cbind(heights, names)
+print(combined)
+
+# Since the 2 arrays are integers and strings, cbind converts them into the more general data type, so the numbers are converted to characters which is why height values are in quotation marks.
+
+# cbind combines the vectors heights and names into a 2D array which forms a matrix.
+
+class(combined)
+
+# The object is a matrix and an array.
+```
+
+2) Downloading data:
+
+a. Download the data set births.csv from the course site and upload it into RStudio. Name
+the data frame NCbirths.
+
+```{r}
+NCbirths = read.csv("births.csv")
+```
+
+b. Demonstrate that you have been successful by typing head(NCbirths) and copying and
+pasting the output into your word processing document.
+
+```{r}
+headers = head(NCbirths)
+print(headers)
+```
+3) Package loading
+
+a. Install the maps package. Verify its installation by typing find.package("maps") and
+include the output in your answer.
+
+```{r}
+# install.packages("maps")
+find.package("maps")
+```
+
+b. Type library(maps) to load up the package. Type map("state") and include the plot output
+in your answer.
+
+```{r}
+library(maps)
+map_plot = map("state")
+print(map_plot)
+```
+
+4) Perform vector operations
+
+a. Extract the weight variable as a vector from the data frame
+
+```{r}
+NCweights = NCbirths$weight
+print(NCweights)
+```
+
+b. What units do you think the weights are in?
+
+```{r}
+# Weight should have units ounces.
+```
+
+c. Create a new vector named weights_in_pounds which are the weights of the babies in
+pounds. You can look up conversion factors on the internet.
+
+```{r}
+weights_in_pounds = NCweights*0.0625 # Conversion from ounces to pounds
+```
+
+d. Demonstrate your success by typing weights_in_pounds[1:20] and including the output in
+your word processing document.
+
+```{r}
+weights_in_pounds[1:20]
+```
+
+
+5) What is the mean weight of the babies in pounds?
+
+```{r}
+mean_weights_in_pounds = mean(weights_in_pounds)
+paste("The mean weight of the babies is", mean_weights_in_pounds, "pounds")
+```
+
+a. What percentage of the mothers in the sample smoke? Hint: use the tally function with
+the format argument. Use the help screen for guidance.
+
+```{r}
+# Install mosaic package to use tally function
+# install.packages("mosaic")
+library(mosaic)
+```
+
+```{r}
+mother_habit = NCbirths$Habit
+smoking_mothers = tally(mother_habit, format = 'percent')
+print(smoking_mothers)
+
+# Percentage of mother smoking is 9.38755%
+
+# Box plot sections off data, bottom 50% is to left of median, top 50% is to right of median, bottom 25% is to left of box, top 25% is to right of box.
+```
+b. According to the Centers for Disease Control, approximately 21% of adult Americans are smokers. How far off is the percentage you found in 2 from the CDC’s report?
+
+```{r}
+smoke_diff = 21 - 9.38755
+paste("Percentage is off from CDC report by", smoke_diff, "%")
+```
+
+6) Produce three different histograms of the weights in pounds. Use 3 bins, 20 bins, and 100 bins. Which histogram seems to give the best visualization, and why?
+
+```{r}
+#Histogram with 3 bins
+hist1 = histogram(weights_in_pounds, nint = 3)
+print(hist1)
+```
+
+```{r}
+# Histogram with 20 bins
+hist2 = histogram(weights_in_pounds, nint = 20)
+print(hist2)
+```
+
+```{r}
+# Histogram with 100 bins
+hist3 = histogram(weights_in_pounds, nint = 100)
+print(hist3)
+```
+
+The histogram with 20 bins gives the best visualization since it does not overgeneralize or undergeneralize the data. It is easier to pick out the relevant data points. It is also easier to see from 20 bins that the data is unimodal and left skewed.
+
+7) We can use the syntax boxplot(vector1, vector2) to make a side by side box plot. Create a side by side boxplot of the mother’s ages and the father’s ages. Which gender tends to be older?
+
+```{r}
+mother_age = NCbirths$Mage
+father_age = NCbirths$Fage
+boxplot(mother_age, father_age)
+```
+The age of fathers tends to be higher than that of mothers. According to the data, fathers tens to be older.
+
+8) Try typing histogram(~ weight | Habit, data = NCbirths, layout = c(1, 2)). Describe what this code does. Based on the graph, do you see any major differences between baby weights from smoking moms vs. non-smoking moms?
+
+```{r}
+histogram(~ weight | Habit, data = NCbirths, layout = c(1, 2))
+```
+The code plots 2 histograms on top of each other. One histogram plots the weights of babies whose mothers are smokers and the other one plots the weights of babies whose mothers are non-smokers. They are plotted against common axes where the x-axis is weight (in ounces) and the y-axis is density. We see that babies whose mothers are smokers tend to have a higher density and lower weights on average. This histogram for smoking mothers is left skewed.
+
+9) Produce a dot plot of the weights in pounds.
+
+```{r}
+dotPlot(weights_in_pounds, col = "black", cex = 4)
+```
+
+10) Consider the other categorical variables in this data. Of those that record the health of the baby, which do you think will be associated with the mother’s smoking and why? Make a two-way Summary Table to check your hypothesis. Do you have evidence that this variable associated with smoking? Why?
+
+```{r}
+# Other categorical variables are Premie (?), Marital, Racemom, Racedad, Hispmom, Hispdad, MomPriorCond (Numerical?), BirthDef (Numerical?), BirthComp (Numerical?)
+
+# BirthDef, DelivComp, BirthComp
+
+tally(~Premie | Habit, data = NCbirths, format = "proportion")
+```
+The variable smoking habit is ASSOCIATED with a higher level of premature births, NOT causation. We can say this because there is a 3% increase in premature births for mother who are smokers
+(11%) as compared to mothers who are non-smokers (3%).
+
+11) Produce a nicely formatted scatter plot of the weight of the baby vs. the mother’s age.
+
+```{r}
+baby_weights = NCbirths$weight
+plot(mother_age, baby_weights,
+     xlab = "Mother's age", ylab = "Baby Weights (oz.)",
+     main = "Baby's Weight against Mother's age", cex = 0.5, 
+     pch = 4, col = "red")
+```
+
+
+

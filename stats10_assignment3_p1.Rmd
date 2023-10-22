@@ -1,0 +1,192 @@
+---
+title: "stats10_assignment3_p1"
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-05-09"
+---
+
+Name: Vedang Bhelande
+UID: 905336978
+
+================== PART 1 ==================
+
+Exercise 1
+
+a) Run a linear regression of lead against zinc concentrations (treat lead as the response variable). Use the summary function just like in the example above and paste the output into your report.
+
+```{r}
+# Read in data
+soil<-read.table("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Assignments/Assignment 3/soil_complete.txt", header = TRUE)
+
+# Lead is response variable
+pb = soil$lead
+# Zinc is explanatory variable
+zn = soil$zinc
+
+# Run the linear model and print a summary
+linearModelSoil = lm(pb ~ zn)
+summary(linearModelSoil)
+```
+
+b) Plot the lead and zinc data, then use the abline() function to overlay the regression line onto the data.
+
+```{r}
+plot(zn, pb, xlab = "Zinc", ylab = "Lead", main = " Regression of Lead Concentration on Zinc Concentration (ppm)")
+abline(linearModelSoil, col = "red", lwd = 2)
+```
+
+c) In a separate plot, plot the residuals of the regression from (a), and again use the abline() function to overlay a horizontal line.
+
+```{r}
+# Create a plot of the residuals to assess regression assumptions
+plot(linearModelSoil$residuals ~ zn, xlab = "Zinc Concentration (ppm)", ylab = "Residuals", main = "Residuals Plot")
+
+## Add a line of y = 0 to help visualize the residuals
+abline(a = 0, b = 0, col = "red", lwd = 2)
+```
+
+d) Based on the output from (a), what is the equation of the linear regression line?
+
+Intercept = 16.58
+Slope = 0.29
+
+Equation of linear regression line: y = 16.58 + 0.29x
+
+e) Imagine we have a new data point. We find out that the zinc concentration at this point is 1,000 ppm. What would we expect the lead concentration at this point to be?
+
+x = 1,000 ppm
+y = 16.58 + 0.29(1000) = 306.58
+
+Hence, we expect lead concentration at this point to be 306.58 ppm.
+
+f) Imagine two locations (A and B) for which we only observe zinc concentrations. Location A contains 100ppm higher concentration of zinc than location B. How much higher would we expect the lead concentration to be in location A compared to location B?
+
+Let lead concentration at location A = y_A and lead concentration at location B = y_B
+Let zinc concentration at location A = x_A and zinc concentration at location B = x_B
+=> x_A - x_B = 100 ppm
+
+y_A - y_B = 16.58 + 0.29(x_A) - (16.58 + 0.29(x_B)) = 0.29(x_A - x_B)
+          = 0.29(100) = 29
+          
+Hence, we expect the lead concentration to be 29 ppm higher in location A compared to location B.
+
+g) Report the R-squared value and explain in words what it means in context.
+
+R-squared = 0.912. This tells us that 91.2% of the variability in lead concentration can be explained by zinc concentration.
+
+h) Comment on whether you believe the three main assumptions (linearity, symmetry, equal variance) for linear regression are met for this data. List any concerns you have.
+
+From the regression line, we see that data and line satisfy the linearity assumption. From the residuals plot, we can see that there is a highly even distribution for data points around the zero line. Thus, the symmetry assumption is met. However, with an increase in zinc, the variances on the positive and negative sides of the y-axis are unequal. Thus, equal variance does not occur for the linear regression model of this data.
+
+=============================
+
+Exercise 2
+
+```{r}
+# Read in data
+ice<-read.csv("/Users/vedangbhelande/Desktop/UCLA SQ '23/Stats 10/Lab Manuals + Code/Lab 3/sea_ice.csv", header = TRUE)
+
+# Format date
+ice$Date<-as.Date(ice$Date, "%m/%d/%Y")
+```
+
+a) Produce a summary of a linear model of sea ice extent against time.
+
+```{r}
+date = ice$Date
+extent = ice$Extent
+
+linearModelIce <- lm(extent ~ date)
+summary(linearModelIce)
+```
+
+b) Plot the data and overlay the regression line. Does there seem to be a trend in this data?
+
+```{r}
+# Scatter Plot
+plot(extent ~ date, xlab = "Date", ylab = "Extent (m)", main = "Scatter Plot")
+abline(linearModelIce, col = "red", lwd = 2)
+```
+
+```{r}
+# Time Series Plot
+plot(extent ~ date, xlab = "Date", ylab = "Extent (m)", main = "Time Series Plot", type = 'l')
+abline(linearModelIce, col = "red", lwd = 2)
+```
+
+There is no linear trend in the data, hence a linear regression model is not useful. However, there is a seasonal trend in the data which is seen in this time series.
+
+c) Plot the residuals of the model over time and include a horizontal line. What assumption(s) about the linear model should we be concerned about?
+
+```{r}
+# plot(linearModelIce$residuals ~ date, xlab = "Date", ylab = "Residuals", main = "Residuals Plot")
+plot(linearModelIce$residuals ~ date, xlab = "Date", ylab = "Residuals", main = "Residuals Plot", type = 'l')
+abline(a = 0, b = 0, col = "red", lwd = 2)
+```
+
+The major assumption about the linear model we should be concerned about is the violation of linearity since the linear model is a bad fit as it cannot capture any of the seasonal cycle.
+
+=============================
+
+Exercise 3
+
+a) Based on your lecture notes, what is the chance Adam will double his money in the first round of the game? What is the chance Adam will lose his money in the first round of the game?
+
+Total number of outcomes = 36
+
+Possible pairs which will result in 7 or 11: (1, 6); (6, 1); (2, 5); (5, 2); (3, 4); (4, 3); (5, 6); (6, 5)
+Number of outcomes which will result in 7 or 11 = 8
+
+Thus, probability of Adam doubling his money in the first round of the game = 8/36 = 2/9.
+
+Possible pairs which will result in 2, 3 or 12: (1, 1); (2, 1); (1, 2); (6, 6)
+Number of outcomes which will result in 2, 3 or 12 = 4
+
+Thus, probability of Adam losing his money in the first round of the game = 4/36 = 1/9.
+
+b) Let’s now approximate the results in (a) by simulation. First, set the seed to 123. Then, create an object that contains 5,000 sample first round Craps outcomes (simulate the sum of 2 dice, 5,000 times). Use the appropriate function to visualize the distribution of these outcomes (hint: are the outcomes discrete or continuous?).
+
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Create a vector from 1 to 6
+numbers = 1:6
+
+# Simulate sampling 2 different die at random, 5,000 times
+rand_draws = replicate(5000, sample(numbers, 2, replace = TRUE))
+
+# Outcomes are discrete
+results = colSums(rand_draws)
+barplot(table(results))
+```
+
+c) Imagine these sample results happened in real life for Adam. Using R functions of your choice, calculate the percentage of time Adam doubled his money. Calculate the percentage of time Adam lost his money.
+
+```{r}
+# Percentage of time Adam doubled his money
+win_rate = ((table(results)[["7"]][1] + table(results)[["11"]][1])/5000)*100
+print(win_rate)
+
+# Percentage of time Adam doubled his money
+loss_rate = ((table(results)[["2"]][1] + table(results)[["3"]][1] + table(results)[["12"]][1])/5000)*100
+print(loss_rate)
+```
+Percentage of time Adam doubled his money: 21.88%
+Percentage of time Adam lost his money: 11.72%
+
+d) Adam winning money and Adam losing money can both be considered events. Are these two events independent, disjoint, or both? Explain why.
+
+Since Adam cannot simultaneously win and lose money, these events can never occur together and hence they are disjoint events. Since these are disjoint events, they can never be independent.
+
+e) Quickly mathematically verify by calculator if those events are independent using part (a) and what you learned in lecture. Show work.
+
+Let event A = doubling money and event B = losing money.
+Since events A and B are disjoint, we know P(B|A) = 0 since P(A and B) = 0.
+If events A and B are independent, P(B|A) = P(B).
+
+However from part (a), we showed that P(B) = 1/9 which means P(B) is not equal to 0.
+This mean P(B|A) is not equal to P(B).
+
+Hence, events A and B are not independent.
